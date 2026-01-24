@@ -1,0 +1,11 @@
+
+node_modules/
+/ai-services/venv/
+.env
+
+__pycache__/
+*.py[cod]
+
+ai-services/uploads/*
+!ai-services/uploads/.gitkeep
+
