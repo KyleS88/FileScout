@@ -15,7 +15,7 @@ from redis.commands.search.query import Query
 from redis.commands.search.index_definition import IndexDefinition, IndexType
 
 
-client = redis.Redis(host='localhost', port=6379, decode_responses=True)
+client = redis.Redis(host='localhost', port=6379, decode_responses=False)
 
 async def create_index():
     index_name = "idx:items"
@@ -61,12 +61,10 @@ async def vector_search(query_vector: list, num_of_neighbors: int = 5):
     return results
 
 async def save_item(item_id, filename, vector, stored_name):
-
     try:
         # check if item already exists
         search_results = (await vector_search(vector, 1)).docs
         if (len(search_results) and float(search_results[0].score) < 0.01):
-
             raise HTTPException(status_code=409, detail="Image already exists")
         
         vector_bytes = vector.tobytes()

@@ -13,7 +13,6 @@ import os, pathlib
 @asynccontextmanager
 async def startup_event(app: FastAPI):
     try:
-
         model = load_model()
         load_anchors(model)
 
@@ -43,9 +42,9 @@ async def upload(file: UploadFile = File(...)):
     try:
         original_name = os.path.basename(file.filename)
         ext = os.path.splitext(original_name)[1].lower()    
-        stored_name = f"{uuid.uuid4()}{ext}"
-        file_data = await file.read()
         item_id = str(uuid.uuid4())
+        stored_name = f"{item_id}{ext}"
+        file_data = await file.read()
 
         embedding = await embed(file_data, None)
 
@@ -98,8 +97,9 @@ async def delete(item_id: str, stored_filename: str):
     try:
         await delete_item(item_id)
         upload_path = UPLOAD_DIR / stored_filename
-        if (upload_path.exists()):
-            os.remove(upload_path)
+        if (upload_path.exists() == False):
+            raise HTTPException(status_code=404, detail="File cannot be deleted because it does not exist")
+        os.remove(upload_path)
         return {"message": "Image deleted successfully"}
     except HTTPException as e:
         raise e
