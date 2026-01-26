@@ -3,12 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 import torch
 from contextlib import asynccontextmanager
 import uuid
-from redis_utils import save_item, create_index, vector_search, search_by_filename
+from redis_utils import save_item, create_index, vector_search, search_by_filename, delete_item
 
 from transformer_utils import embed, load_model, load_anchors
 
 from fastapi.staticfiles import StaticFiles
-import os
+import os, pathlib
 
 @asynccontextmanager
 async def startup_event(app: FastAPI):
@@ -24,7 +24,8 @@ async def startup_event(app: FastAPI):
 
 app = FastAPI(lifespan=startup_event)
 
-UPLOAD_DIR = 'uploads'
+BASE_DIR = pathlib.Path(__file__).resolve().parent
+UPLOAD_DIR = BASE_DIR / "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app.add_middleware(
@@ -79,7 +80,6 @@ async def search(q: str, isFileName: bool):
         for doc in result.docs:
 
             if (1-float(doc.score) < .25):
-
                 continue
             output.append({
                 "id": doc.id,
@@ -90,6 +90,19 @@ async def search(q: str, isFileName: bool):
             })
         images_url = [item["url"] for item in output]
         return {"results": output, "images": images_url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.delete("/delete/{item_id}")
+async def delete(item_id: str, stored_filename: str):
+    try:
+        await delete_item(item_id)
+        upload_path = UPLOAD_DIR / stored_filename
+        if (upload_path.exists()):
+            os.remove(upload_path)
+        return {"message": "Image deleted successfully"}
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

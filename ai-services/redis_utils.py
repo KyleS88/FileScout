@@ -90,4 +90,10 @@ async def save_item(item_id, filename, vector, stored_name):
         raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+async def delete_item(item_id):
+    try:
+        await client.delete(f"item:{item_id}")
+    except Exception as e:  
+        raise HTTPException(status_code=500, detail=str(e))
 
