@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import torch
 from contextlib import asynccontextmanager
 import uuid
-from redis_utils import save_item, create_index, vector_search, search_by_filename, delete_item
+from redis_utils import save_item, create_index, vector_search, search_by_filename, delete_item, page_lookup
 
 from transformer_utils import embed, load_model, load_anchors
 
@@ -59,7 +59,22 @@ async def upload(file: UploadFile = File(...)):
         raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+@app.get("/pages")
+async def search_page(page):
+    try:
+        results = page_lookup(page)
+        output = []
+        for doc in results.docs:
+            output.append({
+                "id": doc.id,
+                "filename": doc.filename,
+                "imageUrl": f"http://localhost:8000/images/{doc.stored_name}"
+            })
+        return {"results": output}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/search")
 async def search(q: str, isFileName: bool):
     try:
@@ -68,10 +83,8 @@ async def search(q: str, isFileName: bool):
         if (isFileName is True):
             result = await search_by_filename(q)
         else:
-
             query_vectors = await embed(None, q)
             result = await vector_search(query_vectors)
-
 
         if (result is None):
             raise HTTPException(status_code=404, detail="No matching files")
@@ -85,16 +98,17 @@ async def search(q: str, isFileName: bool):
                 "filename": doc.filename,
                 "stored_name": doc.stored_name,
                 "score": 1 - float(doc.score),
-                "url": f"http://localhost:8000/images/{doc.stored_name}"
+                "imageUrl": f"http://localhost:8000/images/{doc.stored_name}"
             })
-        images_url = [item["url"] for item in output]
+        images_url = [item["imageUrl"] for item in output]
         return {"results": output, "images": images_url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@app.delete("/delete/{item_id}")
-async def delete(item_id: str, stored_filename: str):
+@app.delete("/delete/{stored_filename}")
+async def delete(stored_filename: str):
     try:
+        item_id = stored_filename.split(".")[0]
         await delete_item(item_id)
         upload_path = UPLOAD_DIR / stored_filename
         if (upload_path.exists() == False):

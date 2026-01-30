@@ -1,19 +1,17 @@
 from fastapi import HTTPException
 import redis.asyncio as redis
 import numpy as np
-
 import numpy.typing as npt
 from redis.commands.search.field import VectorField, TextField
 from redis.commands.search.query import Query
 from redis.commands.search.index_definition import IndexDefinition, IndexType
-from typing import List, Dict
-
-vector_bundle = Dict[str, npt.NDArray[np.float32]]
-
-from redis.commands.search.field import VectorField, TextField
+from typing import Dict
+from redis.commands.search.field import VectorField, TextField, NumericField
 from redis.commands.search.query import Query
 from redis.commands.search.index_definition import IndexDefinition, IndexType
+import time
 
+vector_bundle = Dict[str, npt.NDArray[np.float32]]
 
 client = redis.Redis(host='localhost', port=6379, decode_responses=False)
 
@@ -27,13 +25,14 @@ async def create_index():
         schema = (
             TextField("filename"),
             TextField("stored_name"),
+            NumericField("created_at"),
             VectorField("embedding", "FLAT", {
                 "TYPE": "FLOAT32",
                 "DIM": 512,
                 "DISTANCE_METRIC": "IP",
                 "INITIAL_CAP": 1000,
                 "BLOCK_SIZE": 1000
-            })
+            }),
         )
         definition = IndexDefinition(prefix=["item:"], index_type= IndexType.HASH)
         print("Creating index")
@@ -45,21 +44,18 @@ async def search_by_filename(filename: str):
     results = await client.ft("idx:items").search(query)
     return results
 
+async def page_lookup(page: int = 0, limit: int = 20):
+    query = Query("*").sort_by("created_at", asc=False).paging(page*20, limit)
+    results = await client.ft("idx:items").search(query)
+    return results
+
 async def vector_search(query_vector: vector_bundle, num_of_neighbors: int = 5):
     vector_bytes_query = query_vector.tobytes()
-
     query = Query("*=>[KNN $num_of_neighbors @embedding $vec AS score]").sort_by("score").dialect(2)
-
     result = await client.ft("idx:items").search(query, {"vec": vector_bytes_query, "num_of_neighbors": num_of_neighbors})
     return result
 
-async def vector_search(query_vector: list, num_of_neighbors: int = 5):
-    vector_bytes_query = np.array(query_vector, dtype=np.float32).tobytes()
-    query = Query("*=>[KNN $num_of_neighbors @embedding $vec AS score]").sort_by("score").dialect(2)
-
-    results = (await client.ft("idx:items").search(query, {"vec": vector_bytes_query, "num_of_neighbors": num_of_neighbors}))
-    return results
-
+# add a feature to save to a numeric field for created_at to store time
 async def save_item(item_id, filename, vector, stored_name):
     try:
         # check if item already exists
@@ -78,10 +74,10 @@ async def save_item(item_id, filename, vector, stored_name):
                 "filename": filename,
                 "stored_name": stored_name,
                 "type": "image",
+                "created_at": int(time.time()),
                 "embedding": vector_bytes
             }
         )
-
         print(f"Saved {filename} to Redis as item:{item_id}", flush=True)
 
     except HTTPException as he:

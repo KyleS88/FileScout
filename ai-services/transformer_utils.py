@@ -25,7 +25,7 @@ def normalize(vector):
     return vector / norm
 
 def load_anchors(model):
-    global CACHED_ANCHOR_GLOBAL, CACHED_ANCHOR_SPECIFIC
+    global CACHED_ANCHOR_GLOBAL, CACHED_ANCHOR_SPECIFIC, CACHED_BACKGROUND_EMBEDDING
 
     text_global = "A wide angle view of a full scene, a whole person, or an entire environment."
     text_specific = "A macro close-up detail, a specific body part, texture, color, or isolated object."
