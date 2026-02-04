@@ -1,12 +1,9 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import torch
 from contextlib import asynccontextmanager
 import uuid
 from redis_utils import save_item, create_index, vector_search, search_by_filename, delete_item, page_lookup
-
 from transformer_utils import embed, load_model, load_anchors
-
 from fastapi.staticfiles import StaticFiles
 import os, pathlib
 
@@ -61,9 +58,9 @@ async def upload(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/pages")
-async def search_page(page):
+async def search_page(page: int = 0):
     try:
-        results = page_lookup(page)
+        results = await page_lookup(page)
         output = []
         for doc in results.docs:
             output.append({
@@ -73,6 +70,8 @@ async def search_page(page):
             })
         return {"results": output}
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/search")

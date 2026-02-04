@@ -11,7 +11,7 @@ from redis.commands.search.query import Query
 from redis.commands.search.index_definition import IndexDefinition, IndexType
 import time
 
-vector_bundle = Dict[str, npt.NDArray[np.float32]]
+vector_bundle = npt.NDArray[np.float32]
 
 client = redis.Redis(host='localhost', port=6379, decode_responses=False)
 
@@ -44,8 +44,8 @@ async def search_by_filename(filename: str):
     results = await client.ft("idx:items").search(query)
     return results
 
-async def page_lookup(page: int = 0, limit: int = 20):
-    query = Query("*").sort_by("created_at", asc=False).paging(page*20, limit)
+async def page_lookup(page: int = 0, limit: int = 12):
+    query = Query("*").sort_by("created_at", asc=False).paging(page*limit, limit)
     results = await client.ft("idx:items").search(query)
     return results
 
