@@ -16,6 +16,20 @@ export const searchImages = async (query: string, isFileName: boolean) => {
     }
 }
 
+export const searchPage = async (page: number) => {
+    try {
+        const response = await axios.get(`${apiURL}/pages`, {
+            params: { page },
+        })
+        return response.data;
+    } catch (err) {
+        if (axios.isAxiosError(err)) {
+            throw new Error(err.response?.data?.detail ?? err.message);
+        }
+        throw err;
+    }
+}
+
 export const uploadImage = async (file: File | undefined) => {
     try {
         if (typeof file === "undefined")
@@ -26,6 +40,17 @@ export const uploadImage = async (file: File | undefined) => {
             const response = await axios.post(`${apiURL}/upload`, formData);
         console.log("api complete")
         return response.data;
+    } catch (err) {
+        if (axios.isAxiosError(err)) {
+            throw new Error(err.response?.data?.detail ?? err.message);
+        }
+        throw err;
+    }
+}
+
+export const removeImage = async(storedFilename: string): Promise<void> => {
+    try {
+        await axios.delete(`${apiURL}/delete/${storedFilename}`);
     } catch (err) {
         if (axios.isAxiosError(err)) {
             throw new Error(err.response?.data?.detail ?? err.message);
