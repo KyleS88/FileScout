@@ -1,17 +1,18 @@
 import { CarouselWrapper } from "./CarouselWrapper";
 import React, { useEffect, useState, useCallback } from "react";
 import { searchImages } from '../api'
+import { getBannerEditor } from "./Banner";
 
 type FileSearchProps = {
-    setBanner: React.Dispatch<React.SetStateAction<string>>,
     setOnGalleryScreen: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
-export const FileSearchCard = ({ setBanner, setOnGalleryScreen }: FileSearchProps) => {
+export const FileSearchCard = ({ setOnGalleryScreen }: FileSearchProps) => {
     const [query, setQuery] = useState<string>("");
     const [imageUrls, setImageUrls] = useState<string[]>([]);
     const [isFile, setIsFile] = useState<boolean>(false);
     const [index, setIndex] = useState<number>(0);
+    const { showMessage } = getBannerEditor();
 
     // Add to prev and next a condiditonal for prev and next page
     const prev = useCallback((): void => {        
@@ -27,9 +28,9 @@ export const FileSearchCard = ({ setBanner, setOnGalleryScreen }: FileSearchProp
     }
     const handleSearch = async () => {
         try {
-            setBanner("");
+            showMessage("");
             if (!query) {
-            setBanner("Please enter a search query");
+            showMessage("Please enter a search query", "red");
             return;
             }
             const data = await searchImages(query, isFile);
@@ -42,8 +43,8 @@ export const FileSearchCard = ({ setBanner, setOnGalleryScreen }: FileSearchProp
             behavior: 'smooth'
             })
         } catch (err) {
-            err instanceof Error? setBanner(err.message):
-            setBanner(`An unexpected error has occured please refresh the page: ${err}`);
+            err instanceof Error? showMessage(err.message, "red"):
+            showMessage(`An unexpected error has occured please refresh the page: ${err}`, "red");
         }
     }
 
@@ -80,8 +81,8 @@ export const FileSearchCard = ({ setBanner, setOnGalleryScreen }: FileSearchProp
             <div className='h-200'>
                 {imageUrls.length?
                 <CarouselWrapper
-                    next={next}
-                    prev={prev} >
+                    next={ next }
+                    prev={ prev } >
                     <img src={imageUrls[index]} alt="search result" className="w-220 h-auto select-none" />
                 </CarouselWrapper>:
                   <p className="absolute text-4xl top-3/4 left-1/2 -translate-x-1/2 -translate-y-1/2">No image to display</p>} 
