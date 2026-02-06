@@ -35,7 +35,6 @@ export const FileSearchCard = ({ setOnGalleryScreen }: FileSearchProps) => {
             }
             const data = await searchImages(query, isFile);
             console.log(data)
-
             setImageUrls(data.images)
             window.scrollTo({
             top: 500,

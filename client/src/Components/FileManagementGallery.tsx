@@ -63,7 +63,6 @@ export const FileManagementGallery = ({ setOnGalleryScreen }: FileManagementGall
                         <div className="relative w-full h-64">
                             <img src={imageObj.imageUrl} alt="Gallery Image " className="w-full h-full object-contain select-none" key={imageObj.imageUrl}></img>
                             <p className="">Filename: {imageObj.filename}</p>
-
                         </div>
                     ))}
                 </section>
