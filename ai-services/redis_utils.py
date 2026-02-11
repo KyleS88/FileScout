@@ -44,7 +44,7 @@ async def search_by_filename(filename: str):
     results = await client.ft("idx:items").search(query)
     return results
 
-async def page_lookup(page: int = 0, limit: int = 12):
+async def page_lookup(page: int = 0, limit: int = 10):
     query = Query("*").sort_by("created_at", asc=False).paging(page*limit, limit)
     results = await client.ft("idx:items").search(query)
     return results

@@ -36,12 +36,15 @@ export const FileManagementGallery = ({ setOnGalleryScreen }: FileManagementGall
 
     const prev = useCallback(() => {
         setPageIndex(idx=>(idx-1+pagedFiles.length)%pagedFiles.length);
-    }, [setPageIndex]);
+        console.table(pagedFiles[0]);
+    }, [setPageIndex, pagedFiles, pageIndex]);
 
     const next = useCallback(async () => {
     try {
         if (pageIndex === pagedFiles.length - 1) {
             const data = await searchPage(pagedFiles.length);
+            if (!data.results.length)
+                return;
             setPagedFiles(pagedFiles=> [...pagedFiles, data.results]);
         }
         setPageIndex(idx=>idx+1);
@@ -50,23 +53,23 @@ export const FileManagementGallery = ({ setOnGalleryScreen }: FileManagementGall
             showMessage(err.message, "red");
         } showMessage("An error has occured please refresh the page", "red");
     }
-    }, [showMessage]);
-
+    }, [showMessage, pagedFiles, pageIndex]);
     return (
         <>  
             <CarouselWrapper
                 prev={ prev }
                 next={ next }
                 >
-                <section className="flex flex-column items-center justify-center bg-gray-900 p-4 rounded-lg shadow-md">                
+                <section className="grid grid-cols-5 gap-4 items-center justify-center bg-gray-500 p-4 rounded-lg shadow-md w-full h-full space-y-4">                
                     {pagedFiles[pageIndex]?.map((imageObj)=>(
-                        <div className="relative w-full h-64">
-                            <img src={imageObj.imageUrl} alt="Gallery Image " className="w-full h-full object-contain select-none" key={imageObj.imageUrl}></img>
-                            <p className="">Filename: {imageObj.filename}</p>
+                        <div className="relative w-full h-64 flex flex-col items-center justify-center space-y-2" key={imageObj.id}>
+                            <img src={imageObj.imageUrl} alt="Gallery Image " className="w-full h-full object-contain select-none" key={imageObj.imageUrl} />
+                            <p className="text-sm text-white">Filename: {imageObj.filename}</p>
                         </div>
                     ))}
                 </section>
             </CarouselWrapper>
+            {pageIndex + 1} / {pagedFiles.length}
             <button onClick={()=>setOnGalleryScreen(false)} className="rounded px-4 py-2 bg-purple-500 text-white cursor-pointer">Go Back to Searching</button>
         </>
     )

@@ -1,9 +1,9 @@
 
 import { useState } from 'react';
-import { uploadImage } from './api'
+import { uploadImage } from './api';
 import { FileSearchCard } from './Components/FileSearchCard';
 import { FileManagementGallery } from './Components/FileManagementGallery';
-import { getBannerEditor } from './Components/Banner'
+import { getBannerEditor } from './Components/Banner';
 const App = () => {
   const [onGalleryScreen, setOnGalleryScreen] = useState<boolean>(false);
   const { showMessage } = getBannerEditor();
