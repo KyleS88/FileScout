@@ -2,6 +2,7 @@ import { CarouselWrapper } from "./CarouselWrapper";
 import React, { useEffect, useState, useCallback } from "react";
 import { searchImages } from '../api'
 import { getBannerEditor } from "./Banner";
+import { scrollToBottom } from "../utils/windowsUtils";
 
 type FileSearchProps = {
     setOnGalleryScreen: React.Dispatch<React.SetStateAction<boolean>>,
@@ -36,11 +37,7 @@ export const FileSearchCard = ({ setOnGalleryScreen }: FileSearchProps) => {
             const data = await searchImages(query, isFile);
             console.log(data)
             setImageUrls(data.images)
-            window.scrollTo({
-            top: 500,
-            left: 0,
-            behavior: 'smooth'
-            })
+            scrollToBottom();
         } catch (err) {
             err instanceof Error? showMessage(err.message, "red"):
             showMessage(`An unexpected error has occured please refresh the page: ${err}`, "red");
@@ -56,6 +53,11 @@ export const FileSearchCard = ({ setOnGalleryScreen }: FileSearchProps) => {
         window.addEventListener("keydown", onEnterPress);
         return () => window.removeEventListener("keydown", onEnterPress);
     }, [handleSearch, query, isFile]);
+
+    const handleSetGalleryScreen = () => {
+        setOnGalleryScreen(true);
+        scrollToBottom();
+    }
 
     return (
         <>        
@@ -75,7 +77,7 @@ export const FileSearchCard = ({ setOnGalleryScreen }: FileSearchProps) => {
                 />
                 <label htmlFor="isFile" className="select-none">Are you searching for a file?</label>
                 <button onClick={handleSearch} className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer">Search</button>
-                <button onClick={()=>setOnGalleryScreen(true)} className="bg-purple-500 text-white px-4 py-2 rounded cursor-pointer">Show all files</button>
+                <button onClick={()=>handleSetGalleryScreen()} className="bg-purple-500 text-white px-4 py-2 rounded cursor-pointer">Show all files</button>
             </div>
             <div className='h-200'>
                 {imageUrls.length?
