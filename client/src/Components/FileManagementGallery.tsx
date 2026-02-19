@@ -3,11 +3,14 @@ import { CarouselWrapper } from "./CarouselWrapper"
 import { useState, useCallback, useEffect } from "react"
 import { searchPage } from "../api"
 import { getBannerEditor } from "./Banner"
+import { GalleryCard } from "./GalleryCard"
 
 export interface SearchDocArray {
     id: string,
     filename: string,
     imageUrl: string,
+    created_at: number,
+    stored_name: string,
 }
 interface FileManagementGalleryProp { 
     setOnGalleryScreen: React.Dispatch<React.SetStateAction<boolean>>,
@@ -62,10 +65,11 @@ export const FileManagementGallery = ({ setOnGalleryScreen }: FileManagementGall
                 >
                 <section className="grid grid-cols-5 gap-4 items-center justify-center bg-gray-500 p-4 rounded-lg shadow-md w-full h-full space-y-4">                
                     {pagedFiles[pageIndex]?.map((imageObj)=>(
-                        <div className="relative w-full h-64 flex flex-col items-center justify-center space-y-2" key={imageObj.id}>
-                            <img src={imageObj.imageUrl} alt="Gallery Image " className="w-full h-full object-contain select-none" key={imageObj.imageUrl} />
-                            <p className="text-sm text-white">Filename: {imageObj.filename}</p>
-                        </div>
+                        <GalleryCard 
+                            setPagedFiles={setPagedFiles}
+                            pageIndex={pageIndex}
+                            imageObj={imageObj}
+                            />
                     ))}
                 </section>
             </CarouselWrapper>

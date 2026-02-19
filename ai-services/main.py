@@ -66,7 +66,9 @@ async def search_page(page: int = 0):
             output.append({
                 "id": doc.id,
                 "filename": doc.filename,
-                "imageUrl": f"http://localhost:8000/images/{doc.stored_name}"
+                "imageUrl": f"http://localhost:8000/images/{doc.stored_name}",
+                "created_at": doc.created_at,
+                "stored_name": doc.stored_name,
             })
         return {"results": output}
     except Exception as e:

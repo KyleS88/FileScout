@@ -2,11 +2,9 @@ from fastapi import HTTPException
 import redis.asyncio as redis
 import numpy as np
 import numpy.typing as npt
-from redis.commands.search.field import VectorField, TextField
+from redis.commands.search.field import VectorField, TextField, TagField, NumericField
 from redis.commands.search.query import Query
 from redis.commands.search.index_definition import IndexDefinition, IndexType
-from typing import Dict
-from redis.commands.search.field import VectorField, TextField, NumericField
 from redis.commands.search.query import Query
 from redis.commands.search.index_definition import IndexDefinition, IndexType
 import time
@@ -23,7 +21,7 @@ async def create_index():
     except:
         print(await client.ping())
         schema = (
-            TextField("filename"),
+            TagField("filename"),
             TextField("stored_name"),
             NumericField("created_at"),
             VectorField("embedding", "FLAT", {
@@ -40,12 +38,13 @@ async def create_index():
         print("Index created")
 
 async def search_by_filename(filename: str):
-    query = Query(f"@filename: {filename}")
-    results = await client.ft("idx:items").search(query)
+    print(filename)
+    query = Query("@filename:{$filename}").dialect(2)
+    results = await client.ft("idx:items").search(query, {"filename": filename})
     return results
 
 async def page_lookup(page: int = 0, limit: int = 10):
-    query = Query("*").sort_by("created_at", asc=False).paging(page*limit, limit)
+    query = Query("*").sort_by("created_at", asc=False).paging(page*limit, limit).dialect(2)
     results = await client.ft("idx:items").search(query)
     return results
 
