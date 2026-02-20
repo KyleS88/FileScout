@@ -79,12 +79,12 @@ export const FileSearchCard = ({ setOnGalleryScreen }: FileSearchProps) => {
                 <button onClick={handleSearch} className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer">Search</button>
                 <button onClick={()=>handleSetGalleryScreen()} className="bg-purple-500 text-white px-4 py-2 rounded cursor-pointer">Show all files</button>
             </div>
-            <div className='h-200'>
+            <div className='h-205'>
                 {imageUrls.length?
                 <CarouselWrapper
                     next={ next }
                     prev={ prev } >
-                    <img src={imageUrls[index]} alt="search result" className="w-220 h-auto select-none" />
+                    <img src={imageUrls[index]} alt="search result" className="w-220 h-full select-none" />
                 </CarouselWrapper>:
                   <p className="absolute text-4xl top-3/4 left-1/2 -translate-x-1/2 -translate-y-1/2">No image to display</p>} 
             </div>
