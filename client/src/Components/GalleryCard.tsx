@@ -10,6 +10,14 @@ interface GalleryCardProps {
 
 export const GalleryCard = ( { imageObj, setPagedFiles, pageIndex }: GalleryCardProps ) => {
     const [isExpand, setIsExpand] = useState<boolean>(false);
+    const currentDateRaw = new Date(imageObj.created_at * 1000);
+    const currentYear = String(currentDateRaw.getFullYear()).padStart(4, '0');
+    const currentMonth = String(currentDateRaw.getMonth() + 1).padStart(2, '0');
+    const currentDay = String(currentDateRaw.getDate()).padStart(2, '0');
+    const currentHours = String(currentDateRaw.getHours()).padStart(2, '0');
+    const currentMinutes = String(currentDateRaw.getMinutes()).padStart(2, '0');
+    const currentSeconds = String(currentDateRaw.getSeconds()).padStart(2, '0');
+    const formattedDate = `${currentYear}-${currentMonth}-${currentDay} ${currentHours}:${currentMinutes}:${currentSeconds}`;
     
     const handleDelete = () => {
         removeImage(imageObj.stored_name);   
@@ -30,7 +38,7 @@ export const GalleryCard = ( { imageObj, setPagedFiles, pageIndex }: GalleryCard
                 <img src={imageObj.imageUrl} alt="Gallery Image " className={`object-contain select-none transition-all duration-100 delay-150 ${isExpand? 'w-full h-full': 'w-[85%] h-[85%]'}`} key={imageObj.imageUrl} />
                 <p className="text-sm text-black">Filename: {imageObj.filename}</p>
                 <div className={`transition-opacity duration-200 delay-100 ${isExpand? 'opacity-100 visible': 'opacity-0 invisible h-0 overflow-hidden'} `}>
-                    Date Added: {imageObj.created_at}
+                    Date Added: {formattedDate}
                     <button onClick={()=>handleDelete()} className="cursor-pointer">🗑️</button>
                 </div>
                 
