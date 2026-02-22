@@ -8,10 +8,12 @@ from redis.commands.search.index_definition import IndexDefinition, IndexType
 from redis.commands.search.query import Query
 from redis.commands.search.index_definition import IndexDefinition, IndexType
 import time
+import os
 
 vector_bundle = npt.NDArray[np.float32]
 
-client = redis.Redis(host='localhost', port=6379, decode_responses=False)
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+client = redis.Redis(host=REDIS_HOST, port=6379, decode_responses=False)
 
 async def create_index():
     index_name = "idx:items"
