@@ -66,7 +66,7 @@ async def search_page(page: int = 0):
             output.append({
                 "id": doc.id,
                 "filename": doc.filename,
-                "imageUrl": f"http://localhost:8000/images/{doc.stored_name}",
+                "imageUrl": f"/images/{doc.stored_name}",
                 "created_at": doc.created_at,
                 "stored_name": doc.stored_name,
             })
@@ -99,7 +99,7 @@ async def search(q: str, isFileName: bool):
                 "filename": doc.filename,
                 "stored_name": doc.stored_name,
                 "score": 1 - float(doc.score),
-                "imageUrl": f"http://localhost:8000/images/{doc.stored_name}"
+                "imageUrl": f"/images/{doc.stored_name}"
             })
         images_url = [item["imageUrl"] for item in output]
         return {"results": output, "images": images_url}

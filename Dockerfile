@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
 COPY ai-services/requirement.txt .
 RUN pip install --no-cache-dir -r requirement.txt
 
-COPY ai-serviecs/ ./ai-services/
+COPY ai-services/ ./ai-services/
 
 COPY --from=frontend-builder /app/client/dist ./client/dist
 
