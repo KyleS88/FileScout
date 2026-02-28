@@ -6,6 +6,8 @@ from redis_utils import save_item, create_index, vector_search, search_by_filena
 from transformer_utils import embed, load_model, load_anchors
 from fastapi.staticfiles import StaticFiles
 import os, pathlib
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 @asynccontextmanager
 async def startup_event(app: FastAPI):
@@ -120,6 +122,12 @@ async def delete(stored_filename: str):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+app.mount("/", StaticFiles(directory="../client/dist", html=True), name="static")
+
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    return FileResponse("../client/dist/index.html")
 
 if __name__ == "__main__":
     import uvicorn
