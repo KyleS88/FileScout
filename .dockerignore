@@ -1,0 +1,19 @@
+# Frontend ignores
+client/node_modules/
+client/dist/
+
+# Backend ignores
+ai-services/venv/
+ai-services/.venv/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+ai-services/uploads/
+
+# General ignores
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+.dockerignore

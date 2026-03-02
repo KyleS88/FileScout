@@ -1,0 +1,19 @@
+services:
+  filescout-db:
+    image: redis/redis-stack-server:latest
+    container_name: filescout-redis
+    ports:
+      - "6379:6379"
+      - "8001:8001" 
+
+  filescout-app:
+    build: . 
+    container_name: filescout-app
+    ports:
+      - "7860:7860" 
+    environment:
+      - REDIS_HOST=filescout-db 
+    depends_on:
+      - filescout-db
+    volumes:
+      - ./ai-services/uploads:/app/ai-services/uploads

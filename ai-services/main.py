@@ -5,9 +5,8 @@ import uuid
 from redis_utils import save_item, create_index, vector_search, search_by_filename, delete_item, page_lookup
 from transformer_utils import embed, load_model, load_anchors
 from fastapi.staticfiles import StaticFiles
-import os, pathlib
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+import os, pathlib
 
 @asynccontextmanager
 async def startup_event(app: FastAPI):
@@ -22,9 +21,18 @@ async def startup_event(app: FastAPI):
 
 app = FastAPI(lifespan=startup_event)
 
+app.mount("/assets", StaticFiles(directory="../client/dist/assets"), name="assets")
+
+@app.get("/")
+async def serve_spa():
+    return FileResponse("../client/dist/index.html")
+
+if os.path.exists("dist"):
+    app.mount("/", StaticFiles(directory="dist", html=True), name="static")
+
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 UPLOAD_DIR = BASE_DIR / "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(UPLOAD_DIR, exist_ok=True)  
 
 app.add_middleware(
     CORSMiddleware,
@@ -131,4 +139,5 @@ async def serve_react_app(full_path: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    port = int(os.environ.get("PORT", 7860))
+    uvicorn.run(app, host="0.0.0.0", port=port)

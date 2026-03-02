@@ -28,7 +28,8 @@ export const FileManagementGallery = ({ setOnGalleryScreen }: FileManagementGall
         } catch (err) {
             if (err instanceof Error)
                 showMessage(err.message, "red");
-            showMessage("An unexpected error has occured while initializing the file gallery please refresh the page", "red");
+            else
+                showMessage("An unexpected error has occured while initializing the file gallery please refresh the page", "red");
         }
     }, [searchPage, setPageIndex]);
 
@@ -52,9 +53,10 @@ export const FileManagementGallery = ({ setOnGalleryScreen }: FileManagementGall
         }
         setPageIndex(idx=>idx+1);
     } catch (err) {
-        if (err instanceof Error) {
+        if (err instanceof Error) 
             showMessage(err.message, "red");
-        } showMessage("An error has occured please refresh the page", "red");
+        else
+            showMessage("An error has occured please refresh the page", "red");
     }
     }, [showMessage, pagedFiles, pageIndex]);
     return (
