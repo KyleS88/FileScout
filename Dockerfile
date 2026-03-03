@@ -25,6 +25,7 @@ COPY ai-services/ ./ai-services/
 COPY --from=frontend-builder /app/client/dist ./client/dist
 
 RUN useradd -m -u 1000 user
+RUN chown -R user:user /app
 USER user 
 ENV HOME=/home/user \
     PATH=/home/user/.local/bin:$PATH
