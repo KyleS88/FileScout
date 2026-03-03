@@ -13,8 +13,7 @@ import os
 vector_bundle = npt.NDArray[np.float32]
 
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-client = redis.Redis(host=REDIS_HOST, port=6379, decode_responses=False)
-
+client = redis.from_url(REDIS_HOST, decode_responses=False)
 async def create_index():
     index_name = "idx:items"
     try: 
